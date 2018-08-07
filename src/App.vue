@@ -1,28 +1,60 @@
 <template>
-  <div id="app">
-    <img src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+    <div id="app">
+        <video ref="video" src="https://pan.prprpr.me/?/dplayer/hikarunara.mp4" controls width="600px"></video>
+        <CropTool :duration="duration"
+                  :playing="playing"
+                  :currentPlayingTime="currentTime"
+                  @seek="seekVideo"
+                  @play="playVideo"
+                  @pause="pauseVideo"
+                  @stop="stopVideo"/>
+    </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
-export default {
-  name: 'app',
-  components: {
-    HelloWorld
-  }
-}
+    import CropTool from './components/CropTool.vue'
+    
+    export default {
+        name: 'app',
+        components: {
+            CropTool,
+        },
+        data () {
+            return {
+                duration: 0,
+                playing: false,
+                currentTime: 0
+            }
+        },
+        mounted () {
+            const videoElement = this.$refs.video
+            videoElement.ondurationchange = () => {
+                this.duration = videoElement.duration
+            }
+            videoElement.onplaying = () => {
+                this.playing = true
+            }
+            videoElement.onpause = () => {
+                this.playing = false
+            }
+            videoElement.ontimeupdate = () => {
+                this.currentTime = videoElement.currentTime
+            }
+        },
+        methods: {
+            seekVideo (seekTime) {
+                this.$refs.video.currentTime = seekTime
+            },
+            playVideo () {
+                this.$refs.video.play()
+            },
+            pauseVideo () {
+                this.$refs.video.pause()
+            },
+            stopVideo () {
+                this.$refs.video.pause()
+                this.$refs.video.currentTime = 0
+            }
+        },
+    }
 </script>
-
-<style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
