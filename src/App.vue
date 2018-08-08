@@ -4,7 +4,6 @@
         <CropTool :duration="duration"
                   :playing="playing"
                   :currentPlayingTime="currentTime"
-                  @seek="seekVideo"
                   @play="playVideo"
                   @pause="pauseVideo"
                   @stop="stopVideo"/>
@@ -45,7 +44,8 @@
             seekVideo (seekTime) {
                 this.$refs.video.currentTime = seekTime
             },
-            playVideo () {
+            playVideo (time) {
+                this.seekVideo(time)
                 this.$refs.video.play()
             },
             pauseVideo () {

@@ -232,7 +232,7 @@
                     CUT_BEGIN_TIME: '开始时间',
                     CUT_END_TIME: '结束时间',
                     SENDING_DATA: '裁剪中',
-                    CONFIRM_CUT_VIDEO: '确认裁剪'
+                    CONFIRM_CUT_VIDEO: '裁剪'
                 },
                 playingIndex: -1,
                 showList: false,
@@ -536,9 +536,7 @@
                         currentItem.endTimeIndicatorOffsetX = currentCursorOffsetX
                         currentItem.endTime = currentCursorTime
                     }
-                    // 生成一个新的裁剪片段
-                    currentItem = this.getFormattedCropItem(currentItem.startTime, currentItem.endTime)
-                    this.cropItemList.splice(currentEditingIndex, 1, currentItem)
+                    this.updateCropItem(currentItem, currentEditingIndex)
                 }
             },
             addListeners () {
@@ -615,13 +613,13 @@
             /**
              * 用户点击第一条时间输入框时无数据则预增加一条数据
              */
-            inputFocus: function () {
+            inputFocus () {
                 if (!this.listLength) {
                     this.addCropItem()
                 }
             },
 
-            startTimeChange: function (event, cropItemListIndex, timeArrIndex) {
+            startTimeChange (event, cropItemListIndex, timeArrIndex) {
                 const value = Math.floor(+event.target.value)
                 const cropItemList = this.cropItemList.slice(0)
                 const currentItem = cropItemList[cropItemListIndex]
@@ -641,12 +639,12 @@
                         console.log('起始值必须小于结束值')
                     }
 
-                    this.cropItemList.splice(cropItemListIndex, 1, currentItem)
+                    this.updateCropItem(currentItem, cropItemListIndex)
                 }
                 event.target.value = currentItem.startTimeArr[timeArrIndex]
             },
 
-            endTimeChange: function (event, cropItemListIndex, timeArrIndex) {
+            endTimeChange (event, cropItemListIndex, timeArrIndex) {
                 const value = Math.floor(+event.target.value)
                 const cropItemList = this.cropItemList.slice(0)
                 const currentItem = cropItemList[cropItemListIndex]
@@ -675,14 +673,14 @@
                         currentItem.endTimeArr = formatTime.getFormatTimeArr(duration)
                     }
 
-                    this.cropItemList.splice(cropItemListIndex, 1, currentItem)
+                    this.updateCropItem(currentItem, cropItemListIndex)
                 }
                 event.target.value = currentItem.endTimeArr[timeArrIndex]
             },
             /**
              * 切换列表展示
              */
-            toggleShowList: function () {
+            toggleShowList () {
                 this.showList = !this.showList
             },
 
@@ -690,22 +688,30 @@
             /**
              * 更新全部裁剪
              */
-            updateAllCropItems: function (cropItemList) {
+            updateAllCropItems (cropItemList) {
                 this.cropItemList = cropItemList
+            },
+
+            /**
+             * 更新单个裁剪
+             */
+            updateCropItem (item, index) {
+                const newItem = this.getFormattedCropItem(item.startTime, item.endTime)
+                this.cropItemList.splice(index, 1, newItem)
             },
 
             /**
              * 移除单个裁剪
              * @param index
              */
-            removeCropItem: function (index) {
+            removeCropItem (index) {
                 this.cropItemList.splice(index, 1)
             },
 
             /**
              * 添加一个空裁剪
              */
-            addCropItem: function () {
+            addCropItem () {
                 this.showList = true
                 // 默认添加的时间为1/4到 3/4，到边缘时用户鼠标不好选中时间条
                 const quarterTime = this.duration / 4
@@ -716,7 +722,7 @@
             /**
              * 重置
              */
-            reset: function () {
+            reset () {
                 this.cropItemList = []
                 this.cropItemHoverIndex = -1
                 this.startTimeIndicatorHoverIndex = -1
@@ -739,7 +745,7 @@
              * 切换片段播放暂停
              * @param index
              */
-            togglePlayClip: function (index) {
+            togglePlayClip (index) {
                 if (this.playingItem) {
                     this.pause()
                 }
@@ -752,60 +758,32 @@
              * 播放选中片段
              * @param index
              */
-            playSelectedClip: function (index) {
+            playSelectedClip (index) {
                 if (!this.listLength) {
                     console.log('无裁剪片段')
                     return
                 }
                 this.playingItem = this.cropItemList[index]
                 this.playingIndex = index
-                this.$nextTick(() => {
-                    this.play()
-                })
-            },
-
-            pause: function () {
-                this.$emit('pause')
-            },
-
-            /**
-             *播放
-             *
-             */
-            play: function () {
-                const playingItem = this.playingItem
-                if (!playingItem) {
+                if (!this.playingItem) {
                     return
                 }
                 this.isCropping = false
 
-                const startTime = playingItem.startTime
+                const startTime = this.playingItem.startTime
 
-                if (startTime != null) {
-                    this.$emit('seek', startTime)
-                }
-                this.$emit('play')
+                this.$emit('play', startTime || 0)
+            },
+
+            pause () {
+                this.$emit('pause')
             },
 
             /**
-             * 确认裁剪
+             * cropItemList排序并去重
              */
-            confirmCrop: function () {
-
-                if (this.isSendingCrop) {
-                    console.log('裁剪中')
-                    return
-                }
-
-                if (!this.listLength) {
-                    console.log('无裁剪片段')
-                    return
-                }
-
+            cleanCropItemList () {
                 let cropItemList = this.cropItemList
-
-                this.isSendingCrop = true
-                // 将秒转换为毫秒，拼接成 '1000-3000，5000-8000，'
 
                 // 1. 依据startTime由小到大排序
                 cropItemList = cropItemList.sort(function (item1, item2) {
@@ -815,9 +793,21 @@
                 let tempCropItemList = []
                 let startTime = cropItemList[0].startTime
                 let endTime = cropItemList[0].endTime
+                const lastIndex = cropItemList.length - 1
+
 
                 // 遍历，删除重复片段
-                cropItemList.forEach(item => {
+                cropItemList.forEach((item, index) => {
+                    // 遍历到最后一项，直接写入
+                    if (lastIndex === index) {
+                        tempCropItemList.push({
+                            startTime: startTime,
+                            endTime: endTime,
+                            startTimeArr: formatTime.getFormatTimeArr(startTime),
+                            endTimeArr: formatTime.getFormatTimeArr(endTime),
+                        })
+                        return
+                    }
                     // currentItem片段包含item
                     if (item.endTime <= endTime && item.startTime >= startTime) {
                         return
@@ -840,13 +830,30 @@
                     }
                 })
 
-                // 遍历完成，将最后的时间片段写入列表
-                tempCropItemList.push({
-                    startTime: startTime,
-                    endTime: endTime,
-                    startTimeArr: formatTime.getFormatTimeArr(startTime),
-                    endTimeArr: formatTime.getFormatTimeArr(endTime),
-                })
+                console.log(tempCropItemList)
+                return tempCropItemList
+            },
+
+            /**
+             * 确认裁剪
+             */
+            confirmCrop () {
+
+                if (this.isSendingCrop) {
+                    console.log('裁剪中')
+                    return
+                }
+
+                if (!this.listLength) {
+                    console.log('无裁剪片段')
+                    return
+                }
+
+                let cropItemList = this.cropItemList
+
+                this.isSendingCrop = true
+
+                const tempCropItemList = this.cleanCropItemList()
 
 
                 // 更新全部裁剪片段

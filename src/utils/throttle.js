@@ -2,10 +2,6 @@
  * @file 节流函数
  * @author dujianhao
  * @date 2018/7/20
- */
-
-/**
- * @file 节流函数
  * @param {(Function)} fn
  * @param {number} [delay=0] Unit: ms.
  * @param {boolean} [debounce=false]

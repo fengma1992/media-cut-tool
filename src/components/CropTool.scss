@@ -10,7 +10,7 @@
         position: relative;
         display: flex;
         align-items: center;
-        width: 600px;
+        width: 400px;
         height: 100%;
         padding: 0 10px;
         background-color: #313239;
@@ -220,7 +220,6 @@
             }
 
             .crop-time-body {
-                max-height: 380px;
                 overflow-y: auto;
                 overflow-x: hidden;
                 transition: height .5s;
@@ -337,11 +336,11 @@
 
         .confirm-btn {
             margin: 8px;
-            width: 105px;
+            width: 80px;
             height: 24px;
             line-height: 24px;
             text-align: center;
-            border-radius: 8px;
+            border-radius: 4px;
             color: #fff;
             background-color: #ff991b;
             cursor: pointer;
