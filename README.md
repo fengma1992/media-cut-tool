@@ -1,7 +1,8 @@
 # media-cut-tool
 一个Vue媒体多段裁剪工具
 
-![](https://github.com/fengma1992/media-cut-tool/edit/master/docs/introduction.gif)
+详细介绍：[https://juejin.im/post/5b6960d8e51d4519115d5d2f](https://juejin.im/post/5b6960d8e51d4519115d5d2f)
+
 
 使用示例：
 ```html
