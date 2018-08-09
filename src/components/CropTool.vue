@@ -546,10 +546,6 @@
                     return
                 }
                 let lastMouseDownOffsetX = null
-                // this.timeLineContainer.addEventListener('mouseenter', function (e) {
-                // });
-                // this.timeLineContainer.addEventListener('mouseleave', function (e) {
-                // });
                 this.timeLineContainer.addEventListener('mousemove', e => {
                     throttle(() => {
                         const currentCursorOffsetX = e.clientX - containerLeft

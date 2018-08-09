@@ -1,6 +1,6 @@
 /**
  * @file 节流函数
- * @author dujianhao
+ * @author fengma1992
  * @date 2018/7/20
  * @param {(Function)} fn
  * @param {number} [delay=0] Unit: ms.

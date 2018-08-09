@@ -1,6 +1,6 @@
 /*
  * @file 格式化时间
- * @author dujianhao
+ * @author fengma1992
  */
 import simplifySecond from './simplifySecond'
 

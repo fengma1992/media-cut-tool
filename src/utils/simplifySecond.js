@@ -1,6 +1,6 @@
 /**
  * @file 常用于倒计时、或播放器的进度时长之类的
- * @author dujianhao
+ * @author fengma1992
  */
 export default function (seconds) {
 
