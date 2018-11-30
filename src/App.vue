@@ -1,6 +1,10 @@
 <template>
     <div id="app">
-        <video ref="video" src="https://pan.prprpr.me/?/dplayer/hikarunara.mp4" controls width="600px"></video>
+        <div class="input-container">
+            <span>视频链接：</span>
+            <input type="text" v-model="videoUrl"/>
+        </div>
+        <video ref="video" :src="videoUrl" controls width="600px"></video>
         <CropTool :duration="duration"
                   :playing="playing"
                   :currentPlayingTime="currentTime"
@@ -20,6 +24,7 @@
         },
         data () {
             return {
+                videoUrl: 'http://vali-dns.cp31.ott.cibntv.net/6571751077B357154347F2AAE/03000B02005A5C3D0CA21A2FCEFF56AB3BD1DC-87E0-0D7E-3F5F-21BE72E481E7.mp4',
                 duration: 0,
                 playing: false,
                 currentTime: 0
