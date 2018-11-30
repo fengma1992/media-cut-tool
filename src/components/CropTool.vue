@@ -3,29 +3,20 @@
         <div class="crop-slider">
             <div ref="timeLineContainer" class="crop-time-line-container">
                 <div class="crop-time-line"></div>
-                <template v-for="(item, index) in cropItemList">
-                    <div :key="index"
-                         :class="['crop-range',
-                     {'crop-range-dragging': isCropping && currentEditingIndex === index},
-                     {'crop-range-hover': cropItemHoverIndex === index}]"
-                         :style="computedRangeStyle(item)">
-                        <div :class="['cursor-time-hint',
-                    isTimeIndicatorHovered(index)
-                    ? 'crop-moving-cursor'
-                    : (currentEditingIndex === index ? 'cropping' : '')]">
+                    <div v-for="(item, index) in cropItemList"
+                         :class="getCropRangeClass(index)"
+                         :style="computedRangeStyle(item)"
+                         :key="index">
+                        <div :class="getTimeHintClass(index)">
                             <div class="cursor-line"></div>
                             <div class="cursor-time">{{getFormatTime(item.startTime)}}</div>
                         </div>
-                        <div :class="['cursor-time-hint',
-                    isTimeIndicatorHovered(index)
-                    ? 'crop-moving-cursor'
-                    : (currentEditingIndex === index ? 'cropping' : '')]"
+                        <div :class="getTimeHintClass(index)"
                              :style="computedEndTimeIndicatorStyle(item)">
                             <div class="cursor-line"></div>
                             <div class="cursor-time">{{getFormatTime(item.endTime)}}</div>
                         </div>
                     </div>
-                </template>
                 
                 <div :class="['cursor-time-hint', {'moving-cursor': showNormalCursorTimeHint}]"
                      :style="`transform: translateX(${currentCursorOffsetX}px)`">
@@ -317,6 +308,34 @@
 
         methods: {
 
+
+            getCropRangeClass (index) {
+                let className = 'crop-range'
+
+                if (this.cropItemHoverIndex === index) {
+                    className += ' crop-range-hover'
+
+                    if (this.isCropping) {
+                        className += ' crop-range-dragging'
+                    }
+                }
+
+                return className
+            },
+
+            getTimeHintClass (index) {
+                let className = 'cursor-time-hint'
+
+                if (this.isTimeIndicatorHovered(index)) {
+                    className += ' crop-moving-cursor'
+                }
+                else {
+                    className += this.currentEditingIndex === index ? ' cropping' : ''
+                }
+
+                return className
+            },
+
             /**
              * 根据renderList的index获得cropItemList的index
              */
@@ -344,13 +363,8 @@
                     if (!endTime || endTime < startTime || endTime > duration) {
                         endTime = duration
                     }
-
-                    item = {
-                        startTime: startTime,
-                        endTime: endTime,
-                        startTimeIndicatorOffsetX: startTime / timeToPixelRatio,
-                        endTimeIndicatorOffsetX: endTime / timeToPixelRatio,
-                    }
+                    item.startTimeIndicatorOffsetX = startTime / timeToPixelRatio
+                    item.endTimeIndicatorOffsetX = endTime / timeToPixelRatio
                 })
                 this.cropItemList = cropItemList.slice(0)
             },
@@ -686,6 +700,7 @@
              */
             updateAllCropItems (cropItemList) {
                 this.cropItemList = cropItemList
+                this.forceUpdateCropDataList()
             },
 
             /**
@@ -789,21 +804,11 @@
                 let tempCropItemList = []
                 let startTime = cropItemList[0].startTime
                 let endTime = cropItemList[0].endTime
-                const lastIndex = cropItemList.length - 1
 
 
                 // 遍历，删除重复片段
-                cropItemList.forEach((item, index) => {
-                    // 遍历到最后一项，直接写入
-                    if (lastIndex === index) {
-                        tempCropItemList.push({
-                            startTime: startTime,
-                            endTime: endTime,
-                            startTimeArr: formatTime.getFormatTimeArr(startTime),
-                            endTimeArr: formatTime.getFormatTimeArr(endTime),
-                        })
-                        return
-                    }
+                cropItemList.forEach(item => {
+
                     // currentItem片段包含item
                     if (item.endTime <= endTime && item.startTime >= startTime) {
                         return
@@ -821,12 +826,20 @@
                             startTimeArr: formatTime.getFormatTimeArr(startTime),
                             endTimeArr: formatTime.getFormatTimeArr(endTime),
                         })
+
                         startTime = item.startTime
                         endTime = item.endTime
                     }
                 })
 
-                console.log(tempCropItemList)
+                // 遍历完成，将最后的时间片段写入列表
+                tempCropItemList.push({
+                    startTime: startTime,
+                    endTime: endTime,
+                    startTimeArr: formatTime.getFormatTimeArr(startTime),
+                    endTimeArr: formatTime.getFormatTimeArr(endTime),
+                })
+
                 return tempCropItemList
             },
 
