@@ -16,7 +16,7 @@
 
 <script>
     import CropTool from './components/CropTool.vue'
-    
+
     export default {
         name: 'app',
         components: {
@@ -24,7 +24,7 @@
         },
         data () {
             return {
-                videoUrl: 'http://vali-dns.cp31.ott.cibntv.net/6571751077B357154347F2AAE/03000B02005A5C3D0CA21A2FCEFF56AB3BD1DC-87E0-0D7E-3F5F-21BE72E481E7.mp4',
+                videoUrl: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4',
                 duration: 0,
                 playing: false,
                 currentTime: 0
