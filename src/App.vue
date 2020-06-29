@@ -24,7 +24,7 @@
         },
         data () {
             return {
-                videoUrl: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4',
+                videoUrl: 'https://fengma1992.github.io/media-cut-tool/video.mp4',
                 duration: 0,
                 playing: false,
                 currentTime: 0
